@@ -36,26 +36,71 @@ public class MatriculaServiceImpl implements MatriculaService {
     }
 
     @Override
-    public MatriculaResponseDTO registrarMatricula(MatriculaRequestDTO matriculaRequestDTO) {
+    public MatriculaResponseDTO registrarMatricula(
+            MatriculaRequestDTO matriculaRequestDTO
+    ) {
 
-        AlumnoResponseDTO alumno = obtenerAlumno(matriculaRequestDTO.getAlumnoId());
-        CursoResponseDTO curso = obtenerCurso(matriculaRequestDTO.getCursoId());
+        AlumnoResponseDTO alumno =
+                obtenerAlumno(matriculaRequestDTO.getAlumnoId());
+
+        CursoResponseDTO curso =
+                obtenerCurso(matriculaRequestDTO.getCursoId());
 
         if (Boolean.FALSE.equals(alumno.getEstado())) {
-            throw new RuntimeException("No se puede matricular. El alumno está inactivo.");
+            throw new RuntimeException(
+                    "No se puede matricular. El alumno está inactivo."
+            );
         }
 
         if (Boolean.FALSE.equals(curso.getEstado())) {
-            throw new RuntimeException("No se puede matricular. El curso está inactivo.");
+            throw new RuntimeException(
+                    "No se puede matricular. El curso está inactivo."
+            );
         }
 
-        Matricula matricula = matriculaMapper.toEntity(matriculaRequestDTO);
+        boolean matriculaExistente =
+                matriculaRepository
+                        .existsByAlumnoIdAndCursoIdAndEstadoTrue(
+                                matriculaRequestDTO.getAlumnoId(),
+                                matriculaRequestDTO.getCursoId()
+                        );
+
+        if (matriculaExistente) {
+            throw new RuntimeException(
+                    "El alumno ya se encuentra matriculado en este curso."
+            );
+        }
+
+        if (curso.getVacantes() == null || curso.getVacantes() <= 0) {
+            throw new RuntimeException(
+                    "No se puede matricular. El curso no tiene vacantes."
+            );
+        }
+
+        descontarVacante(matriculaRequestDTO.getCursoId());
+
+        Matricula matricula =
+                matriculaMapper.toEntity(matriculaRequestDTO);
+
         matricula.setFechaMatricula(LocalDateTime.now());
         matricula.setEstado(true);
 
-        Matricula matriculaGuardada = matriculaRepository.save(matricula);
+        Matricula matriculaGuardada =
+                matriculaRepository.save(matricula);
 
         return matriculaMapper.toResponseDTO(matriculaGuardada);
+    }
+
+    private void descontarVacante(Long cursoId) {
+
+        try {
+            cursoClient.descontarVacante(cursoId);
+
+        } catch (FeignException e) {
+            throw new RuntimeException(
+                    "No se pudo descontar la vacante del curso."
+            );
+        }
     }
 
     @Override
@@ -86,10 +131,24 @@ public class MatriculaServiceImpl implements MatriculaService {
 
     @Override
     public void eliminarMatricula(Long id) {
+
         Matricula matricula = matriculaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Matrícula no encontrada con ID: " + id));
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Matrícula no encontrada con ID: " + id
+                        )
+                );
+
+        if (Boolean.FALSE.equals(matricula.getEstado())) {
+            throw new RuntimeException(
+                    "La matrícula ya se encuentra inactiva."
+            );
+        }
+
+        devolverVacante(matricula.getCursoId());
 
         matricula.setEstado(false);
+
         matriculaRepository.save(matricula);
     }
 
@@ -106,6 +165,18 @@ public class MatriculaServiceImpl implements MatriculaService {
             return cursoClient.buscarCursoPorId(cursoId);
         } catch (FeignException e) {
             throw new RuntimeException("No se puede matricular. El curso no existe o curso-service no está disponible.");
+        }
+    }
+
+    private void devolverVacante(Long cursoId) {
+
+        try {
+            cursoClient.devolverVacante(cursoId);
+
+        } catch (FeignException e) {
+            throw new RuntimeException(
+                    "No se pudo devolver la vacante al curso."
+            );
         }
     }
 }

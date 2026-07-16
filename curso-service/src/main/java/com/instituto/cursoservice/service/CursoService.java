@@ -12,4 +12,6 @@ public interface CursoService {
     Cursoresponse buscarcursoporid(Long id);
     Cursoresponse actualizarcurso(Long id, Cursorequest cursorequest);
     void eliminarcurso(Long id);
+    Cursoresponse descontarvacante(Long id);
+    Cursoresponse devolvervacante(Long id);
 }

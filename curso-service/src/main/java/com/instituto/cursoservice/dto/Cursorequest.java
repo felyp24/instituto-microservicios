@@ -1,4 +1,5 @@
 package com.instituto.cursoservice.dto;
+import java.time.LocalTime;
 
 public class Cursorequest {
 
@@ -7,16 +8,26 @@ public class Cursorequest {
     private Integer creditos;
     private Integer vacantes;
     private Long docenteId;
+    private String diaSemana;
+    private LocalTime horaInicio;
+    private LocalTime horaFin;
+    private String aula;
+    private String periodo;
 
     public Cursorequest() {
     }
 
-    public Cursorequest(Long docenteId, Integer vacantes, Integer creditos, String descripcion, String nombre) {
-        this.docenteId = docenteId;
-        this.vacantes = vacantes;
-        this.creditos = creditos;
-        this.descripcion = descripcion;
+    public Cursorequest(String nombre, String descripcion, Integer creditos, Integer vacantes, Long docenteId, String diaSemana, LocalTime horaInicio, LocalTime horaFin, String aula, String periodo) {
         this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.creditos = creditos;
+        this.vacantes = vacantes;
+        this.docenteId = docenteId;
+        this.diaSemana = diaSemana;
+        this.horaInicio = horaInicio;
+        this.horaFin = horaFin;
+        this.aula = aula;
+        this.periodo = periodo;
     }
 
     public Long getDocenteId() {
@@ -57,5 +68,44 @@ public class Cursorequest {
 
     public void setVacantes(Integer vacantes) {
         this.vacantes = vacantes;
+    }
+    public String getDiaSemana() {
+        return diaSemana;
+    }
+
+    public void setDiaSemana(String diaSemana) {
+        this.diaSemana = diaSemana;
+    }
+
+    public LocalTime getHoraInicio() {
+        return horaInicio;
+    }
+
+    public void setHoraInicio(LocalTime horaInicio) {
+        this.horaInicio = horaInicio;
+    }
+
+    public LocalTime getHoraFin() {
+        return horaFin;
+    }
+
+    public void setHoraFin(LocalTime horaFin) {
+        this.horaFin = horaFin;
+    }
+
+    public String getAula() {
+        return aula;
+    }
+
+    public void setAula(String aula) {
+        this.aula = aula;
+    }
+
+    public String getPeriodo() {
+        return periodo;
+    }
+
+    public void setPeriodo(String periodo) {
+        this.periodo = periodo;
     }
 }

@@ -1,6 +1,7 @@
 package com.instituto.cursoservice.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "cursos")
@@ -24,6 +25,24 @@ public class Curso {
 
     @Column
     private Long docenteId;
+
+    @Column
+    private String diaSemana;
+
+    @Column
+    private LocalTime horaInicio;
+
+    @Column
+    private LocalTime horaFin;
+
+    @Column
+    private Double horasDuracion;
+
+    @Column
+    private String aula;
+
+    @Column
+    private String periodo;
 
     public Curso() {
     }
@@ -100,5 +119,53 @@ public class Curso {
 
     public void setDocenteId(Long docenteId) {
         this.docenteId = docenteId;
+    }
+
+    public String getDiaSemana() {
+        return diaSemana;
+    }
+
+    public void setDiaSemana(String diaSemana) {
+        this.diaSemana = diaSemana;
+    }
+
+    public LocalTime getHoraInicio() {
+        return horaInicio;
+    }
+
+    public void setHoraInicio(LocalTime horaInicio) {
+        this.horaInicio = horaInicio;
+    }
+
+    public LocalTime getHoraFin() {
+        return horaFin;
+    }
+
+    public void setHoraFin(LocalTime horaFin) {
+        this.horaFin = horaFin;
+    }
+
+    public Double getHorasDuracion() {
+        return horasDuracion;
+    }
+
+    public void setHorasDuracion(Double horasDuracion) {
+        this.horasDuracion = horasDuracion;
+    }
+
+    public String getAula() {
+        return aula;
+    }
+
+    public void setAula(String aula) {
+        this.aula = aula;
+    }
+
+    public String getPeriodo() {
+        return periodo;
+    }
+
+    public void setPeriodo(String periodo) {
+        this.periodo = periodo;
     }
 }

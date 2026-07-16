@@ -43,9 +43,31 @@ public class CursoController {
         return ResponseEntity.ok(cursoresponse);
     }
 
+    @PutMapping("/{id}/descontar-vacante")
+    public ResponseEntity<Cursoresponse> descontarvacante(
+            @PathVariable Long id
+    ) {
+        Cursoresponse curso =
+                cursoService.descontarvacante(id);
+
+        return ResponseEntity.ok(curso);
+    }
+
+    @PutMapping("/{id}/devolver-vacante")
+    public ResponseEntity<Cursoresponse> devolvervacante(
+            @PathVariable Long id
+    ) {
+        Cursoresponse curso =
+                cursoService.devolvervacante(id);
+
+        return ResponseEntity.ok(curso);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarcurso(@PathVariable Long id){
         cursoService.eliminarcurso(id);
         return ResponseEntity.noContent().build();
     }
+
+
 }
