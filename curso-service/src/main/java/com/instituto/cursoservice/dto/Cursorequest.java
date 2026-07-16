@@ -6,15 +6,25 @@ public class Cursorequest {
     private String descripcion;
     private Integer creditos;
     private Integer vacantes;
+    private Long docenteId;
 
     public Cursorequest() {
     }
 
-    public Cursorequest(Integer vacantes, Integer creditos, String descripcion, String nombre) {
+    public Cursorequest(Long docenteId, Integer vacantes, Integer creditos, String descripcion, String nombre) {
+        this.docenteId = docenteId;
         this.vacantes = vacantes;
         this.creditos = creditos;
         this.descripcion = descripcion;
         this.nombre = nombre;
+    }
+
+    public Long getDocenteId() {
+        return docenteId;
+    }
+
+    public void setDocenteId(Long docenteId) {
+        this.docenteId = docenteId;
     }
 
     public String getNombre() {

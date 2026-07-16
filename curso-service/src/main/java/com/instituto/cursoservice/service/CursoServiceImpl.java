@@ -7,6 +7,9 @@ import com.instituto.cursoservice.entity.Curso;
 import com.instituto.cursoservice.mapper.CursoMapper;
 import com.instituto.cursoservice.repository.Cursorepository;
 import org.springframework.stereotype.Service;
+import com.instituto.cursoservice.client.DocenteClient;
+import com.instituto.cursoservice.dto.DocenteResponseDTO;
+import feign.FeignException;
 
 import java.util.List;
 
@@ -15,11 +18,17 @@ public class CursoServiceImpl implements CursoService{
 
     private final Cursorepository cursorepository;
     private final CursoMapper cursoMapper;
+    private final DocenteClient docenteClient;
 
 
-    public CursoServiceImpl(Cursorepository cursorepository, CursoMapper cursoMapper) {
-        this.cursorepository = cursorepository;
+    public CursoServiceImpl(
+            Cursorepository cursoRepository,
+            CursoMapper cursoMapper,
+            DocenteClient docenteClient
+    ) {
+        this.cursorepository = cursoRepository;
         this.cursoMapper = cursoMapper;
+        this.docenteClient = docenteClient;
     }
 
     @Override
@@ -59,5 +68,39 @@ public class CursoServiceImpl implements CursoService{
         curso.setEstado(false);
         cursorepository.save(curso);
 
+    }
+
+    private DocenteResponseDTO validarDocente(Long docenteId) {
+
+        if (docenteId == null) {
+            throw new RuntimeException(
+                    "Debe seleccionar un docente para el curso"
+            );
+        }
+
+        try {
+            DocenteResponseDTO docente =
+                    docenteClient.buscarDocentePorId(docenteId);
+
+            if (docente == null) {
+                throw new RuntimeException(
+                        "No se encontró el docente con ID: " + docenteId
+                );
+            }
+
+            if (Boolean.FALSE.equals(docente.getEstado())) {
+                throw new RuntimeException(
+                        "El docente con ID " + docenteId + " está inactivo"
+                );
+            }
+
+            return docente;
+
+        } catch (FeignException e) {
+            throw new RuntimeException(
+                    "No se pudo encontrar o consultar al docente con ID: "
+                            + docenteId
+            );
+        }
     }
 }

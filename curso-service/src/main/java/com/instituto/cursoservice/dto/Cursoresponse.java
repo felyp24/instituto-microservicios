@@ -7,17 +7,27 @@ public class Cursoresponse {
     private Integer creditos;
     private Integer vacantes;
     private Boolean estado;
+    private Long docenteId;
 
     public Cursoresponse() {
     }
 
-    public Cursoresponse(Long id, Boolean estado, Integer vacantes, Integer creditos, String descripcion, String nombre) {
+    public Cursoresponse(Long id, Long docenteId, Boolean estado, Integer vacantes, Integer creditos, String descripcion, String nombre) {
         this.id = id;
+        this.docenteId = docenteId;
         this.estado = estado;
         this.vacantes = vacantes;
         this.creditos = creditos;
         this.descripcion = descripcion;
         this.nombre = nombre;
+    }
+
+    public Long getDocenteId() {
+        return docenteId;
+    }
+
+    public void setDocenteId(Long docenteId) {
+        this.docenteId = docenteId;
     }
 
     public Long getId() {
