@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 @FeignClient(
         name = "curso-service",
-        url = "${services.curso.url}"
+        path = "/api/cursos"
 )
 public interface CursoClient {
 

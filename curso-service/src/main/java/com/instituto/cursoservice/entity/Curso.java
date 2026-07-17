@@ -1,6 +1,8 @@
 package com.instituto.cursoservice.entity;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
@@ -44,25 +46,27 @@ public class Curso {
     @Column
     private String periodo;
 
+    @Column
+    private LocalDate fecha;
+
     public Curso() {
     }
 
-    public Curso(
-            Long id,
-            String nombre,
-            String descripcion,
-            Integer creditos,
-            Integer vacantes,
-            Boolean estado,
-            Long docenteId
-    ) {
+    public Curso(Long id, String nombre, String descripcion, Integer creditos, Boolean estado, Integer vacantes, Long docenteId, String diaSemana, LocalTime horaInicio, LocalTime horaFin, Double horasDuracion, String aula, String periodo, LocalDate fecha) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.creditos = creditos;
-        this.vacantes = vacantes;
         this.estado = estado;
+        this.vacantes = vacantes;
         this.docenteId = docenteId;
+        this.diaSemana = diaSemana;
+        this.horaInicio = horaInicio;
+        this.horaFin = horaFin;
+        this.horasDuracion = horasDuracion;
+        this.aula = aula;
+        this.periodo = periodo;
+        this.fecha = fecha;
     }
 
     public Long getId() {
@@ -167,5 +171,13 @@ public class Curso {
 
     public void setPeriodo(String periodo) {
         this.periodo = periodo;
+    }
+
+    public LocalDate getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(LocalDate fecha) {
+        this.fecha = fecha;
     }
 }

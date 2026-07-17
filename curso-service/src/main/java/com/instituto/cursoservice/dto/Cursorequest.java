@@ -1,5 +1,6 @@
 package com.instituto.cursoservice.dto;
 import java.time.LocalTime;
+import java.time.LocalDate;
 
 public class Cursorequest {
 
@@ -13,6 +14,7 @@ public class Cursorequest {
     private LocalTime horaFin;
     private String aula;
     private String periodo;
+    private LocalDate fecha;
 
     public Cursorequest() {
     }
@@ -107,5 +109,13 @@ public class Cursorequest {
 
     public void setPeriodo(String periodo) {
         this.periodo = periodo;
+    }
+
+    public LocalDate getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(LocalDate fecha) {
+        this.fecha = fecha;
     }
 }

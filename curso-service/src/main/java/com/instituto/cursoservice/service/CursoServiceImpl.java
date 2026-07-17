@@ -11,6 +11,7 @@ import feign.FeignException;
 import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalTime;
+import java.time.LocalDate;
 
 import java.util.List;
 
@@ -35,7 +36,15 @@ public class CursoServiceImpl implements CursoService {
     public Cursoresponse registrarcurso(
             Cursorequest cursorequest
     ) {
+
         validarDocente(cursorequest.getDocenteId());
+
+        String diaSemana =
+                obtenerDiaSemana(cursorequest.getFecha());
+
+        cursorequest.setDiaSemana(diaSemana);
+
+        validarCruceHorario(null, cursorequest);
 
         Double horasDuracion = calcularHorasDuracion(
                 cursorequest.getHoraInicio(),
@@ -76,6 +85,7 @@ public class CursoServiceImpl implements CursoService {
             Long id,
             Cursorequest cursorequest
     ) {
+
         Curso curso = cursorepository.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException("Curso no encontrado")
@@ -89,6 +99,13 @@ public class CursoServiceImpl implements CursoService {
 
         validarDocente(cursorequest.getDocenteId());
 
+        String diaSemana =
+                obtenerDiaSemana(cursorequest.getFecha());
+
+        cursorequest.setDiaSemana(diaSemana);
+
+        validarCruceHorario(id, cursorequest);
+
         Double horasDuracion = calcularHorasDuracion(
                 cursorequest.getHoraInicio(),
                 cursorequest.getHoraFin()
@@ -100,6 +117,7 @@ public class CursoServiceImpl implements CursoService {
         curso.setVacantes(cursorequest.getVacantes());
         curso.setDocenteId(cursorequest.getDocenteId());
 
+        curso.setFecha(cursorequest.getFecha());
         curso.setDiaSemana(cursorequest.getDiaSemana());
         curso.setHoraInicio(cursorequest.getHoraInicio());
         curso.setHoraFin(cursorequest.getHoraFin());
@@ -232,5 +250,124 @@ public class CursoServiceImpl implements CursoService {
         ).toMinutes();
 
         return minutos / 60.0;
+    }
+
+    private String obtenerDiaSemana(LocalDate fecha) {
+
+        if (fecha == null) {
+            throw new RuntimeException(
+                    "La fecha del curso es obligatoria"
+            );
+        }
+
+        return switch (fecha.getDayOfWeek()) {
+            case MONDAY -> "LUNES";
+            case TUESDAY -> "MARTES";
+            case WEDNESDAY -> "MIERCOLES";
+            case THURSDAY -> "JUEVES";
+            case FRIDAY -> "VIERNES";
+            case SATURDAY -> "SABADO";
+            case SUNDAY -> "DOMINGO";
+        };
+    }
+
+    private void validarCruceHorario(
+            Long cursoIdActual,
+            Cursorequest cursorequest
+    ) {
+
+        if (cursorequest.getFecha() == null) {
+            throw new RuntimeException(
+                    "La fecha del curso es obligatoria"
+            );
+        }
+
+        if (cursorequest.getHoraInicio() == null
+                || cursorequest.getHoraFin() == null) {
+
+            throw new RuntimeException(
+                    "La hora de inicio y la hora de fin son obligatorias"
+            );
+        }
+
+        if (!cursorequest.getHoraFin()
+                .isAfter(cursorequest.getHoraInicio())) {
+
+            throw new RuntimeException(
+                    "La hora de fin debe ser posterior a la hora de inicio"
+            );
+        }
+
+        if (cursorequest.getAula() == null
+                || cursorequest.getAula().isBlank()) {
+
+            throw new RuntimeException(
+                    "El aula es obligatoria"
+            );
+        }
+
+        List<Curso> cursosDeLaFecha =
+                cursorepository.findByFechaAndEstadoTrue(
+                        cursorequest.getFecha()
+                );
+
+        for (Curso cursoExistente : cursosDeLaFecha) {
+
+            /*
+             * Durante una actualización, evitamos comparar
+             * el curso con él mismo.
+             */
+            if (cursoIdActual != null
+                    && cursoIdActual.equals(cursoExistente.getId())) {
+                continue;
+            }
+
+            /*
+             * Los cursos antiguos pueden tener horarios nulos.
+             */
+            if (cursoExistente.getHoraInicio() == null
+                    || cursoExistente.getHoraFin() == null) {
+                continue;
+            }
+
+            boolean horariosSuperpuestos =
+                    cursorequest.getHoraInicio()
+                            .isBefore(cursoExistente.getHoraFin())
+                            &&
+                            cursorequest.getHoraFin()
+                                    .isAfter(cursoExistente.getHoraInicio());
+
+            if (!horariosSuperpuestos) {
+                continue;
+            }
+
+            boolean mismoDocente =
+                    cursorequest.getDocenteId() != null
+                            && cursorequest.getDocenteId()
+                            .equals(cursoExistente.getDocenteId());
+
+            if (mismoDocente) {
+                throw new RuntimeException(
+                        "El docente ya tiene el curso "
+                                + cursoExistente.getNombre()
+                                + " en esa fecha y horario"
+                );
+            }
+
+            boolean mismaAula =
+                    cursoExistente.getAula() != null
+                            && cursorequest.getAula()
+                            .equalsIgnoreCase(cursoExistente.getAula());
+
+            if (mismaAula) {
+                throw new RuntimeException(
+                        "El aula "
+                                + cursorequest.getAula()
+                                + " está ocupada por el curso "
+                                + cursoExistente.getNombre()
+                                + " en esa fecha y horario"
+                );
+            }
+        }
     }
 }
